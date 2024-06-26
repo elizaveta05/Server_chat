@@ -2,11 +2,10 @@ package com.server_chat.Server_chat.controller;
 
 import com.server_chat.Server_chat.model.ChatModel;
 import com.server_chat.Server_chat.model.MessageModel;
-import com.server_chat.Server_chat.model.UsersModel;
 import com.server_chat.Server_chat.service.MessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +15,8 @@ import java.util.List;
 public class MessageController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageService messageService;
+    private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
+
 
     @Autowired
     public MessageController(SimpMessagingTemplate simpMessagingTemplate, MessageService messageService) {
@@ -36,15 +37,19 @@ public class MessageController {
         }
     }
     // Обработка запроса на получение всех сообщений между отправителем и получателем.
-    @GetMapping("/fetchAllMessage/{senderId}/{recipientId}")
-    public void getAllMessage(@DestinationVariable String senderId, @DestinationVariable String recipientId){
+    @GetMapping("/app/fetchAllMessage/{senderId}/{recipientId}")
+    public List<MessageModel> getAllMessage(@PathVariable String senderId, @PathVariable String recipientId){
+        if (senderId == null || recipientId==null) {
+            throw new IllegalArgumentException("Parameters is null");
+        }
         System.out.println("Обработка запроса на получение сообщений для " + recipientId);
         List<MessageModel> messages = messageService.getAllMessages(senderId, recipientId);
-        simpMessagingTemplate.convertAndSend("/topic/messages/" + recipientId, messages); // Отправка всех сообщений пользователю
+        return messages;
+        //simpMessagingTemplate.convertAndSend("/topic/messages/" + recipientId, messages); // Отправка всех сообщений пользователю
     }
-
-    @GetMapping("/getAllChatsForUser/{senderId}")
-    public void getAllChatsForUser(@DestinationVariable String senderId) {
+    // Обработка запроса на получение всех чатов для пользователя
+    @GetMapping("/app/getAllChatsForUser/{senderId}")
+    public List<ChatModel> getAllChatsForUserHttp(@PathVariable String senderId) {
         try {
             if (senderId == null) {
                 throw new IllegalArgumentException("SenderId is null");
@@ -52,12 +57,13 @@ public class MessageController {
 
             System.out.println("Получение всех чатов пользователя " + senderId);
             List<ChatModel> chats = messageService.getAllChatsForUser(senderId);
-            for (ChatModel chat : chats) {
-                simpMessagingTemplate.convertAndSendToUser(senderId, "/topic/chats", chat);
-            }
+            System.out.println("Получение всех чатов пользователя " + chats);
+
+            return chats;
         } catch (Exception e) {
             e.printStackTrace();
-            simpMessagingTemplate.convertAndSend("/topic/errors", e.getMessage());
+            return null;
         }
+
     }
 }

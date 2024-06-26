@@ -1,30 +1,33 @@
 package com.server_chat.Server_chat.model;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.protobuf.Timestamp;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class MessageModel {
     private String content;
-    private String senderId;
-    private String receiverId;
-    private LocalDateTime timestamp;
-    private boolean status;
+    private DocumentReference senderId;
+    private DocumentReference receiverId;
+    private Instant timestamp;
 
-    public MessageModel(String content, String senderId, String receiverId, LocalDateTime timestamp) {
+
+    public MessageModel(String content, DocumentReference senderId, DocumentReference receiverId, Instant timestamp) {
         this.content = content;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.timestamp = timestamp;
-        this.status = false;
     }
 
     public MessageModel() {
 
     }
 
-    public String getSenderId() {
+    public DocumentReference getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(String senderId) {
+    public void setSenderId(DocumentReference senderId) {
         this.senderId = senderId;
     }
 
@@ -36,27 +39,20 @@ public class MessageModel {
         this.content = content;
     }
 
-    public String getReceiverId() {
+    public DocumentReference getReceiverId() {
         return receiverId;
     }
 
-    public void setReceiverId(String receiverId) {
+    public void setReceiverId(DocumentReference receiverId) {
         this.receiverId = receiverId;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
 }
