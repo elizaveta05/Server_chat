@@ -13,14 +13,12 @@ import java.util.List;
 
 @RestController
 public class MessageController {
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageService messageService;
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
 
     @Autowired
-    public MessageController(SimpMessagingTemplate simpMessagingTemplate, MessageService messageService) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    public MessageController(MessageService messageService) {
         this.messageService = messageService;
     }
     // Обработка отправки сообщения от отправителя к получателю
@@ -32,8 +30,6 @@ public class MessageController {
         } catch (Exception e) {
             // Логирование ошибки
             e.printStackTrace();
-            // Возможно, отправка сообщения об ошибке на клиентскую сторону
-            simpMessagingTemplate.convertAndSend("/topic/errors", e.getMessage());
         }
     }
     // Обработка запроса на получение всех сообщений между отправителем и получателем.
@@ -45,7 +41,6 @@ public class MessageController {
         System.out.println("Обработка запроса на получение сообщений для " + recipientId);
         List<MessageModel> messages = messageService.getAllMessages(senderId, recipientId);
         return messages;
-        //simpMessagingTemplate.convertAndSend("/topic/messages/" + recipientId, messages); // Отправка всех сообщений пользователю
     }
     // Обработка запроса на получение всех чатов для пользователя
     @GetMapping("/app/getAllChatsForUser/{senderId}")
